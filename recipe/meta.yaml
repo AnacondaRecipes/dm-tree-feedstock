@@ -24,6 +24,8 @@ requirements:
     - {{ compiler('cxx') }}
     - cmake
     - make  # [not win]
+    - git  # [not win]
+    - m2-git # [win]
     - patch  # [not win]
     - m2-patch # [win]
   host:
