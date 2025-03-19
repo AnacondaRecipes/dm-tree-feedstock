@@ -1,54 +1,55 @@
 {% set name = "dm-tree" %}
-{% set version = "0.1.7" %}
+{% set version = "0.1.9" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/dm-tree-{{ version }}.tar.gz
-  sha256: 30fec8aca5b92823c0e796a2f33b875b4dccd470b57e91e6c542405c5f77fd2a
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_') }}-{{ version }}.tar.gz
+  sha256: a4c7db3d3935a5a2d5e4b383fc26c6b0cd6f78c6d4605d3e7b518800ecd5342b
   patches:
-    - patches/0003-remove-pybind-fetch.patch
+    - patches/0001-allow-cmake-args-from-env.patch
 
 build:
-  number: 1
-  skip: true  # [ppc64le or s390x]
-  script: {{ PYTHON }} -m pip install . --no-deps -vv
+  number: 0
+  skip: true  # [s390x or py<310]
+  script: |
+    export CMAKE_ARGS="-DUSE_SYSTEM_ABSEIL=ON -DCMAKE_CXX_STANDARD=17 -DUSE_SYSTEM_PYBIND11=ON -DFETCHCONTENT_FULLY_DISCONNECTED=ON -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"  # [not win]
+    set "CMAKE_ARGS=-DUSE_SYSTEM_ABSEIL=ON -DCMAKE_CXX_STANDARD=17 -DUSE_SYSTEM_PYBIND11=ON -DFETCHCONTENT_FULLY_DISCONNECTED=ON -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"  # [win]
+    {{ PYTHON }} -m pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vv
 
-
-# Need these up here for conda-smithy to handle them properly.
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake
-    - make  # [not win]
-    - git  # [not win]
-    - m2-git # [win]
-    - patch  # [not win]
-    - m2-patch # [win]
+    - make      # [not win]
+    - patch     # [not win]
+    - m2-patch  # [win]
   host:
     - python
+    - libabseil
     - pip
+    - pybind11
     - setuptools
     - wheel
-    - pybind11
   run:
     - python
+    - absl-py >=0.6.1
+    - attrs >=18.2.0
+    - numpy >=1.21
+    - wrapt >=1.11.2
 
 test:
   imports:
     - tree
-  commands:
-    - pip check
-    - python -m unittest tree.tree_test tree.tree_benchmark
   requires:
     - pip
-    - attrs >=18.2.0
-    - absl-py >=0.6.1
-    - numpy >=1.15.4
-    - wrapt >=1.11.2
+    - pytest
+  commands:
+    - pip check
+    - pytest --pyargs tree
 
 about:
   home: https://github.com/deepmind/tree
