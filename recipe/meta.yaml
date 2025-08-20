@@ -23,12 +23,12 @@ build:
 
 requirements:
   build:
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake
     - make      # [not win]
-    - patch     # [not win]
-    - m2-patch  # [win]
+    - msys2-patch  # [win]
   host:
     - python
     - libabseil {{ libabseil }}
