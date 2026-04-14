@@ -1,25 +1,26 @@
 {% set name = "dm-tree" %}
-{% set version = "0.1.9" %}
+{% set version = "0.1.10" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_') }}-{{ version }}.tar.gz
-  sha256: a4c7db3d3935a5a2d5e4b383fc26c6b0cd6f78c6d4605d3e7b518800ecd5342b
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_') }}-{{ version }}.tar.gz
+  sha256: 22f37b599e01cc3402a17f79c257a802aebd8d326de05b54657650845956208a
   patches:
     - patches/0001-allow-cmake-args-from-env.patch
 
 build:
-  number: 3
+  number: 0
   skip: true  # [py<310]
-  script_env:                                # [win]
+  script_env:  # [win]
     - CMAKE_GENERATOR=Visual Studio 16 2019  # [win]
   script: |
     export CMAKE_ARGS="-DUSE_SYSTEM_ABSEIL=ON -DCMAKE_CXX_STANDARD=17 -DUSE_SYSTEM_PYBIND11=ON -DFETCHCONTENT_FULLY_DISCONNECTED=ON -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"  # [not win]
     set "CMAKE_ARGS=-DUSE_SYSTEM_ABSEIL=ON -DCMAKE_CXX_STANDARD=17 -DUSE_SYSTEM_PYBIND11=ON -DFETCHCONTENT_FULLY_DISCONNECTED=ON -DCMAKE_MESSAGE_LOG_LEVEL=DEBUG"  # [win]
     {{ PYTHON }} -m pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vv
+
 
 requirements:
   build:
@@ -27,7 +28,7 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - cmake
-    - make      # [not win]
+    - make  # [not win]
   host:
     - python
     - libabseil {{ libabseil }}
