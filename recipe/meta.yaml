@@ -30,7 +30,7 @@ requirements:
     - make      # [not win]
   host:
     - python
-    - libabseil {{ libabseil }}
+    - libabseil 20260526.0
     - pip
     - pybind11
     - setuptools
